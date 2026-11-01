@@ -27,10 +27,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
 public class biobuzz_teleop_2026 extends LinearOpMode {
+    double x;
+    double y;
     DcMotor backLeft;
     DcMotor backRight;
     DcMotor frontLeft;
     DcMotor frontRight;
+    
+    DcMotor intake;
+    DcMotor launcher;
     
     @Override
     public void runOpMode() throws InterruptedException { 
@@ -39,6 +44,9 @@ public class biobuzz_teleop_2026 extends LinearOpMode {
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
         frontRight = hardwareMap.dcMotor.get("frontRight");
         
+        intake = hardwareMap.dcMotor.get("intake");
+        launcher = hardwareMap.dcMotor.get("launchyMcLaunchFace");
+        
         DcMotor[] motors = {backLeft, backRight, frontLeft, frontRight};
         
         drivetrain drivetrain = new drivetrain(motors[0], motors[1], motors[2],motors[3]);
@@ -46,21 +54,36 @@ public class biobuzz_teleop_2026 extends LinearOpMode {
         waitForStart();
         
         while (opModeIsActive()) {
-            telemetry.addData("LStick x-axis", gamepad2.left_stick_x);
-            telemetry.update();
+            x = gamepad2.left_stick_x;
+            y = gamepad2.left_stick_y;
             
-            if (Math.abs(gamepad2.left_stick_x) > Math.abs(gamepad2.left_stick_y)) {
+            if (Math.abs(x) > Math.abs(y)) {
                 drivetrain.strafe(gamepad2.left_stick_x);
             } else if (Math.abs(gamepad2.left_stick_y) > Math.abs(gamepad2.left_stick_x)) {
                 drivetrain.driveForward(gamepad2.left_stick_y);
             //} else if (Math.abs(gamepad2.left_stick_x) > 1.0 && Math.abs(gamepad2.left_stick_y) > 1.0) {
             //    
-            } else if (Math.abs(gamepad2.right_stick_x) > 0) {
+            } else {
+                drivetrain.setPowerAll(0.0);
+            }
+            
+            if (Math.abs(gamepad2.right_stick_x) > 0) {
                 drivetrain.turn(gamepad2.right_stick_x);
             } else {
                 drivetrain.setPowerAll(0.0);
             }
+            
+            if (gamepad2.left_trigger_pressed) {
+                intake.setPower(1.0);
+            } else {
+                intake.setPower(0.0);
+            }
+            
+            if (gamepad2.right_trigger_pressed) {
+                launcher.setPower(1.0);
+            } else {
+                launcher.setPower(0.0);
+            }
         }
     }
 }
-
